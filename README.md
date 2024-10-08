@@ -10,6 +10,27 @@ Chopperfix is a powerful library designed for automation and optimization of web
 - **🤖 AI Integration**: Uses LangChain to continuously enhance selectors and interactions with language models.
 - **🌐 Compatibility**: Works seamlessly with both Selenium and Playwright to maximize automation capabilities.
 
+
+# 🔑 API Key Configuration
+To use ChopperFix with OpenAI's models, you need to set up an API key:
+
+**Obtain an OpenAI API Key:**
+
+Go to OpenAI's website and create an account if you haven't already.
+Generate an API key from the dashboard.
+Set the API Key as an Environment Variable:
+
+On your command line or terminal, set the following environment variable:
+```bash
+export OPENAI_API_KEY='your_openai_api_key_here'
+```
+**Current Model:**
+
+We are currently using the gpt-4o-mini model to handle language processing.
+⚙️ Future Plans: We aim to switch to more cost-effective models soon to reduce operational expenses.
+
+
+
 ## 📚 Installation
 
 To install `chopperfix`, simply use the following pip command:
