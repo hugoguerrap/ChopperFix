@@ -8,6 +8,9 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+dist/
+patterns.db
+web_selfheal.egg-info/
 .Python
 build/
 develop-eggs/
@@ -75,7 +78,7 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
-
+web_selfheal.egg-info/
 # Jupyter Notebook
 .ipynb_checkpoints
 
