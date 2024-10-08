@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-from core.action_decorators import action_logger
+from chopperfix.chopper_decorators import chopperdoc
 
 class CustomPlaywright:
     def __init__(self, timeout=10000, retry_attempts=1):
@@ -9,7 +9,7 @@ class CustomPlaywright:
         self.page.set_default_timeout(timeout)
         self.retry_attempts = retry_attempts
 
-    @action_logger
+    @chopperdoc
     def perform_action(self, action, **kwargs):
         for attempt in range(self.retry_attempts):
             try:

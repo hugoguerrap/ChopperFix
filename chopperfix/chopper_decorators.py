@@ -7,7 +7,7 @@ langchain_manager = LangChainManager()
 pattern_storage = PatternStorage()
 
 
-def action_logger(func):
+def chopperdoc(func):
     @wraps(func)
     def wrapper(driver, *args, **kwargs):
         action_name = args[0] if args else kwargs.get('action', func.__name__)

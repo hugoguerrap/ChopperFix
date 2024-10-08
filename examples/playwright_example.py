@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 
-from core.action_decorators import action_logger
+from chopperfix.chopper_decorators import action_logger
 
 
 class CustomPlaywright:

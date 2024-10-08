@@ -14,8 +14,17 @@ setup(
         'sqlalchemy',
         'playwright',
         'beautifulsoup4',
-        'langchain-openai',
-        # Agrega más dependencias según sea necesario
+        'langchain',
+        'openai',
+        'langchain_community',
+        'selenium',
+        'Pillow',
+        'requests',
+        'pydantic',
+        'loguru',
+        'numpy',
+        'scikit-learn',
+        'spacy',  # Corregido de sapcy a spacy
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
