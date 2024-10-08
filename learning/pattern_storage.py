@@ -35,21 +35,21 @@ class PatternStorage:
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
-        self.nlp = self.load_spacy_model()
+        #self.nlp = self.load_spacy_model()
 
-    def load_spacy_model(self):
-        model_name = 'en_core_web_sm'
-        try:
-            return spacy.load(model_name)
-        except OSError:
-            print(f"Modelo {model_name} no encontrado. Descargando ahora...")
-            subprocess.run(['python', '-m', 'spacy', 'download', model_name], check=True)
-            return spacy.load(model_name)
+    #def load_spacy_model(self):
+    #    model_name = 'en_core_web_sm'
+    #    try:
+    #        return spacy.load(model_name)
+    #    except OSError:
+    #        print(f"Modelo {model_name} no encontrado. Descargando ahora...")
+    #        subprocess.run(['python', '-m', 'spacy', 'download', model_name], check=True)
+    #        return spacy.load(model_name)
 
-    def extract_html_context(self, html_content):
-        doc = self.nlp(html_content)
-        keywords = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
-        return keywords
+    #def extract_html_context(self, html_content):
+    #    doc = self.nlp(html_content)
+    #    keywords = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
+    #    return keywords
 
     def normalize_selector(self, selector):
         if not selector:
