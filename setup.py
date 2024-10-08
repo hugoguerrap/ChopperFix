@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='web_selfheal',
+    name='ChopperFix',
     version='0.1.0',
     author='Hugo Guerra',
-    author_email='tucorreo@ejemplo.com',
+    author_email='',
     description='Librería de self-healing para automatización web con análisis y reconocimiento de patrones',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    url='https://github.com/tuusuario/web_selfheal',  # Cambia a la URL de tu repositorio
+    url='https://github.com/hugoguerrap/ChopperFix.git',  # Cambia a la URL de tu repositorio
     packages=find_packages(exclude=['tests*', 'examples*']),
     install_requires=[
         'sqlalchemy',
