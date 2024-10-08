@@ -1,0 +1,4 @@
+sqlalchemy
+playwright
+beautifulsoup4
+langchain-openai

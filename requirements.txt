@@ -1,0 +1,29 @@
+# LangChain y OpenAI
+langchain
+openai
+langchain_community
+# Selenium para automatización web
+selenium
+beautifulsoup4
+# Playwright para automatización web
+playwright
+
+# Para el análisis y manipulación de imágenes
+Pillow
+
+# Otras dependencias útiles
+requests
+pydantic
+
+# Registro y logging
+loguru
+
+# Herramientas adicionales para la manipulación de datos y ML
+numpy
+scikit-learn
+
+# Persistencia y almacenamiento
+sqlalchemy
+
+#NLP
+sapcy
