@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Text, Boolean, or_, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import spacy
+#import spacy
 import subprocess
 
 Base = declarative_base()
