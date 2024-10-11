@@ -1,5 +1,5 @@
 # LangChain y OpenAI
-langchain
+adalflow
 openai
 langchain_community
 # Selenium para automatización web

@@ -1,13 +1,18 @@
 import re
-from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Text, Boolean, or_, and_
+
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Text, Boolean, JSON, or_, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-#import spacy
-import subprocess
+from datetime import datetime
 
 Base = declarative_base()
 
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Text, Boolean, JSON
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+
+Base = declarative_base()
 
 class Pattern(Base):
     __tablename__ = 'patterns'
@@ -18,7 +23,11 @@ class Pattern(Base):
     url = Column(String, nullable=False)
     description = Column(Text)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    peso = Column(Float, default=1.0)
+    full_element_html = Column(Text)  # HTML completo del elemento
+    parent_element = Column(Text)  # HTML del elemento padre
+    child_elements = Column(JSON)  # HTML de los elementos hijos
+    sibling_elements = Column(JSON)  # HTML de los elementos adyacentes
+    peso = Column(Float, default=1.0)  # Definición del campo 'peso'
     usage_count = Column(Integer, default=0)
     success_rate = Column(Float, default=0.0)
     active = Column(Boolean, default=True)
@@ -26,7 +35,13 @@ class Pattern(Base):
     replacement_selector = Column(String, nullable=True)
 
     def __repr__(self):
-        return f"<Pattern(action={self.action}, selector={self.selector}, replacement_selector={self.replacement_selector}, success_rate={self.success_rate}, failed={self.failed})>"
+        return (f"<Pattern(action={self.action}, selector={self.selector}, "
+                f"full_element_html={self.full_element_html}, parent_element={self.parent_element})>")
+
+
+    def __repr__(self):
+        return (f"<Pattern(action={self.action}, selector={self.selector}, "
+                f"full_element_html={self.full_element_html}, parent_element={self.parent_element})>")
 
 
 class PatternStorage:
@@ -54,13 +69,13 @@ class PatternStorage:
     def normalize_selector(self, selector):
         if not selector:
             return selector
-        normalized = re.sub(r'\s+', '', selector.strip().lower())
+        normalized = re.sub(r'\s+', '', selector.strip())
         normalized = re.sub(r'[\"\'<>]', '', normalized)
         return normalized
 
     def normalize_url(self, url):
         # Eliminar el protocolo y www si está presente
-        url = re.sub(r'^(https?://)?(www\.)?', '', url.lower())
+        url = re.sub(r'^(https?://)?(www\.)?', '', url)
         # Eliminar parámetros de consulta y fragmentos
         url = re.sub(r'\?.*$', '', url)
         url = re.sub(r'#.*$', '', url)
@@ -82,10 +97,12 @@ class PatternStorage:
             self.session.commit()
             print(f"Patrón original actualizado: {original_selector} -> {replacement_selector}")
 
-    def save_pattern(self, action, selector, url, description, success=True, replacement_selector=None):
+    def save_pattern(self, action, selector, url, description, success=True, replacement_selector=None,
+                     full_element_html=None, parent_element=None, child_elements=None, sibling_elements=None):
         normalized_selector = self.normalize_selector(selector)
         normalized_url = self.normalize_url(url)
 
+        # Buscar el patrón existente en la base de datos
         existing_pattern = self.session.query(Pattern).filter_by(
             action=action,
             selector=normalized_selector,
@@ -93,17 +110,32 @@ class PatternStorage:
         ).first()
 
         if existing_pattern:
+            # Actualizar el patrón existente con nuevos valores y estadísticas
             existing_pattern.usage_count += 1
-            existing_pattern.success_rate = (existing_pattern.success_rate * (existing_pattern.usage_count - 1) + (
-                1 if success else 0)) / existing_pattern.usage_count
+            existing_pattern.success_rate = (
+                    (existing_pattern.success_rate * (existing_pattern.usage_count - 1) + (1 if success else 0))
+                    / existing_pattern.usage_count
+            )
             existing_pattern.failed = not success
             if not success and replacement_selector:
                 existing_pattern.replacement_selector = replacement_selector
             existing_pattern.description = description
             existing_pattern.timestamp = datetime.utcnow()
             existing_pattern.peso += 0.1 if success else -0.1
+
+            # Actualizar los detalles del contexto HTML si están disponibles
+            if full_element_html:
+                existing_pattern.full_element_html = full_element_html
+            if parent_element:
+                existing_pattern.parent_element = parent_element
+            if child_elements:
+                existing_pattern.child_elements = child_elements
+            if sibling_elements:
+                existing_pattern.sibling_elements = sibling_elements
+
             print(f"Patrón actualizado: {existing_pattern.selector} para la URL {normalized_url}")
         else:
+            # Crear un nuevo patrón si no existe uno con el mismo selector y URL
             new_pattern = Pattern(
                 action=action,
                 selector=normalized_selector,
@@ -113,12 +145,17 @@ class PatternStorage:
                 usage_count=1,
                 success_rate=1.0 if success else 0.0,
                 failed=not success,
-                replacement_selector=replacement_selector
+                replacement_selector=replacement_selector,
+                full_element_html=full_element_html,
+                parent_element=parent_element,
+                child_elements=child_elements,
+                sibling_elements=sibling_elements
             )
             self.session.add(new_pattern)
             print(f"Nuevo patrón guardado: {normalized_selector} para la URL {normalized_url}")
 
         self.session.commit()
+
 
     def get_patterns(self, failed_selector, url, limit=10):
         normalized_failed_selector = self.normalize_selector(failed_selector)

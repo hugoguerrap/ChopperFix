@@ -50,10 +50,10 @@ driver = CustomPlaywright()
 driver.navigate('https://www.wikipedia.org')
 
 # Intentar escribir en un selector inválido para activar el self-healing
-driver.type(selector='invalid_search_input_nose_loconozco', text='One piece')
+driver.type(selector='#searchInputsfffsssss', text='One piece')
 
 # Intentar presionar una tecla en un selector inválido para activar el self-healing
-driver.press(selector='invalid_search_input', key='Enter')
+driver.press(selector='#searchInput', key='Enter')
 
 # Cerrar el navegador
 driver.close()
