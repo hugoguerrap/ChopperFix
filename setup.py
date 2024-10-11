@@ -2,29 +2,25 @@ from setuptools import setup, find_packages
 
 setup(
     name='ChopperFix',
-    version='0.1.0',
+    version='0.0.1',
     author='Hugo Guerra',
     author_email='',
-    description='Librería de self-healing para automatización web con análisis y reconocimiento de patrones',
+    description='Chopperfix is a powerful library designed for automation and optimization of web browser interactions.',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/hugoguerrap/ChopperFix.git',  # Cambia a la URL de tu repositorio
     packages=find_packages(exclude=['tests*', 'examples*']),
     install_requires=[
         'sqlalchemy',
-        'playwright',
         'beautifulsoup4',
-        'langchain',
+        'adalflow',
         'openai',
-        'langchain_community',
-        'selenium',
         'Pillow',
         'requests',
         'pydantic',
         'loguru',
         'numpy',
         'scikit-learn',
-        'spacy',  # Corregido de sapcy a spacy
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
