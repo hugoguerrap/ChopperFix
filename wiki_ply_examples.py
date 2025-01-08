@@ -1,10 +1,9 @@
 from playwright.sync_api import sync_playwright
-
-from build.lib.chopperfix.chopper_decorators import chopperdoc
+from chopperfix.chopper_decorators import chopperdoc
 
 
 class CustomPlaywright:
-    def __init__(self, timeout=10000, retry_attempts=1):
+    def __init__(self, timeout=5000, retry_attempts=1):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(headless=False)
         self.page = self.browser.new_page()
@@ -16,11 +15,11 @@ class CustomPlaywright:
         for attempt in range(self.retry_attempts):
             try:
                 if action == 'click':
-                    self.page.click(kwargs['selector'])
+                    self.page.locator(kwargs['xpath']).click()
                 elif action == 'type':
-                    self.page.fill(kwargs['selector'], kwargs.get('text', ''))
+                    self.page.locator(kwargs['xpath']).fill(kwargs.get('text', ''))
                 elif action == 'press':
-                    self.page.press(kwargs['selector'], kwargs.get('key', ''))
+                    self.page.locator(kwargs['xpath']).press(kwargs.get('key', ''))
                 elif action == 'navigate':
                     self.page.goto(kwargs.get('url', ''))
                 return True
@@ -29,21 +28,22 @@ class CustomPlaywright:
                 if attempt == self.retry_attempts - 1:
                     raise
 
-    def click(self, selector):
-        return self.perform_action('click', selector=selector)
+    def click(self, xpath):
+        return self.perform_action('click', xpath=xpath)
 
     def navigate(self, url):
         return self.perform_action('navigate', url=url)
 
-    def type(self, selector, text):
-        return self.perform_action('type', selector=selector, text=text)
+    def type(self, xpath, text):
+        return self.perform_action('type', xpath=xpath, text=text)
 
-    def press(self, selector, key):
-        return self.perform_action('press', selector=selector, key=key)
+    def press(self, xpath, key):
+        return self.perform_action('press', xpath=xpath, key=key)
 
     def close(self):
         self.browser.close()
         self.playwright.stop()
+
 
 # Prueba del decorador y self-healing con un flujo extendido en Wikipedia
 driver = CustomPlaywright()
@@ -51,11 +51,11 @@ driver = CustomPlaywright()
 # Navegar a la página principal de Wikipedia
 driver.navigate('https://www.wikipedia.org')
 
-# Intentar escribir en un selector inválido para activar el self-healing
-driver.type(selector='#casmpo_ingreso', text='One piece')
+# Intentar escribir en un XPath inválido para activar el self-healing
+driver.type(xpath="//input[@id='sear']", text='One piece')
 
-# Intentar presionar una tecla en un selector inválido para activar el self-healing
-driver.press(selector='#searchInput', key='Enter')
+# Intentar presionar una tecla en un XPath inválido para activar el self-healing
+driver.press(xpath="//input[@id='searnoesta']", key='Enter')
 
 # Cerrar el navegador
 driver.close()

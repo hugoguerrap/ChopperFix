@@ -1,31 +1,49 @@
 from functools import wraps  # Importa el decorador 'wraps' para mantener la metadata de la función original
 from learning.pattern_storage import PatternStorage  # Importa la clase 'PatternStorage' para almacenar patrones
-from llm_integration.adalflow_manager import AdalFlowManager
+from llm_integration.adalflow_manager import AdalFlowManager, fix_xpath
 from bs4 import BeautifulSoup  # Necesario para extraer el contexto del HTML
 
 # Inicializa las instancias de AdalFlowManager y PatternStorage
 pattern_storage = PatternStorage()
 adalFlow_Manger = AdalFlowManager()
 
-def extract_element_context(html_content, selector):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    target_element = soup.select_one(selector)
+from lxml import etree
 
-    if not target_element:
-        return None, None, None, None
-
-    parent_element = target_element.parent
-    child_elements = [str(child) for child in target_element.children if child.name]
-    sibling_elements = [str(sibling) for sibling in target_element.find_next_siblings()]
-
-    return str(target_element), str(parent_element), child_elements, sibling_elements
+def extract_element_context(html_content, selector, is_xpath=True):
+    if is_xpath:
+        tree = etree.HTML(html_content)
+        try:
+            target_element = tree.xpath(selector)
+            if not target_element:
+                return None, None, None, None
+            target_element = target_element[0]
+            parent_element = target_element.getparent()
+            child_elements = [etree.tostring(child, pretty_print=True).decode() for child in target_element]
+            sibling_elements = [etree.tostring(sibling, pretty_print=True).decode() for sibling in target_element.itersiblings()]
+            return (
+                etree.tostring(target_element, pretty_print=True).decode(),
+                etree.tostring(parent_element, pretty_print=True).decode(),
+                child_elements,
+                sibling_elements,
+            )
+        except Exception:
+            return None, None, None, None
+    else:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        target_element = soup.select_one(selector)
+        if not target_element:
+            return None, None, None, None
+        parent_element = target_element.parent
+        child_elements = [str(child) for child in target_element.children if child.name]
+        sibling_elements = [str(sibling) for sibling in target_element.find_next_siblings()]
+        return str(target_element), str(parent_element), child_elements, sibling_elements
 
 def chopperdoc(func):  # Define un decorador llamado 'chopperdoc' que toma una función como argumento
     @wraps(func)  # Mantiene la metadata de la función original
     def wrapper(driver, *args, **kwargs):  # Define la función envoltura que recibe un controlador y argumentos
         action_name = args[0] if args else kwargs.get('action', func.__name__)  # Obtiene el nombre de la acción
         url = driver.page.url  # Obtiene la URL actual de la página
-        selector = kwargs.get('selector')  # Obtiene el selector de los argumentos
+        selector = kwargs.get('xpath')  # Obtiene el selector de los argumentos
 
         if action_name == 'navigate':  # Si la acción es 'navigate'
             selector = 'URL'  # Establece el selector como 'URL'
@@ -65,8 +83,8 @@ def chopperdoc(func):  # Define un decorador llamado 'chopperdoc' que toma una f
             if selector and selector != 'URL':  # Si hay un selector y no es 'URL'
                 print(f"[INFO] Iniciando self-healing para el selector fallido: '{selector}'")  # Inicia el proceso de auto-reparación
 
-                replacement_selector = pattern_storage.get_replacement_selector(selector, url)  # Intenta obtener un selector alternativo
-
+                replacement_selector = pattern_storage.get_replacement_selector(selector, url,action_name)  # Intenta obtener un selector alternativo
+                #replacement_selector=fix_xpath(replacement_selector)
                 if not replacement_selector:  # Si no se encontró un selector alternativo
                     print("[INFO] Solicitando selector alternativo al LLM")  # Solicita un selector alternativo al LLM
 
@@ -78,12 +96,16 @@ def chopperdoc(func):  # Define un decorador llamado 'chopperdoc' que toma una f
                         child_elements=child_elements,
                         sibling_elements=sibling_elements
                     )  # Sugiere un selector alternativo
-
+                print(replacement_selector)
                 if replacement_selector:  # Si se encontró un selector alternativo
                     print(f"[INFO] Reintentando acción con selector alternativo '{replacement_selector}'")  # Imprime información sobre el reintento
-                    kwargs['selector'] = replacement_selector  # Actualiza el selector en los argumentos
+                    kwargs['xpath'] = replacement_selector  # Actualiza el selector en los argumentos
+                    print(kwargs)
+                    print(action_name)
                     try:
+
                         result = func(driver, action_name, **kwargs)  # Reintenta la acción con el nuevo selector
+
                         # Llamar a generate_description con el contexto completo para el intento exitoso
                         successful_description = adalFlow_Manger.generate_description(
                             action_name, replacement_selector, url, html_content,

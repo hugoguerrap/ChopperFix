@@ -5,6 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
+from llm_integration.adalflow_manager import AdalFlowManager, fix_xpath
+
 Base = declarative_base()
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Text, Boolean, JSON
@@ -13,6 +15,14 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
 Base = declarative_base()
+
+
+def agregar_comillas_xpath(xpath):
+    import re
+    # Busca atributos sin comillas en el XPath y les agrega comillas dobles
+    xpath_corregido = re.sub(r"(@[\w-]+)=([\w-]+)", r'\1="\2"', xpath)
+    return xpath_corregido
+
 
 class Pattern(Base):
     __tablename__ = 'patterns'
@@ -185,10 +195,32 @@ class PatternStorage:
             f"[WARN] No se encontraron patrones para el selector: '{normalized_failed_selector}' en la URL '{normalized_url}'")
         return None
 
-    def get_replacement_selector(self, failed_selector, url):
+    def get_replacement_selector(self, failed_selector, url,action_name):
+        adalFlow_Manger = AdalFlowManager()
         normalized_failed_selector = self.normalize_selector(failed_selector)
         normalized_url = self.normalize_url(url)
 
+        patterns = self.get_all_patterns(limit=10)
+        patterns_dict = []
+
+        # Almacenar los detalles de cada patrón en un diccionario
+        for pattern in patterns:
+            pattern_details = {
+                "Acción": pattern.action,
+                "Selector": pattern.selector,
+                "URL": pattern.url,
+                "Timestamp": pattern.timestamp,
+                "Descripción": pattern.description,
+                "Peso": pattern.peso
+            }
+            patterns_dict.append(pattern_details)
+
+        # Ahora `patterns_dict` contiene una lista de diccionarios con los detalles de los patrones
+
+        selector=adalFlow_Manger.analyze_context_from_text(str(patterns_dict),failed_selector,action_name)
+        print("*"*50)
+        print(selector)
+        print("*" * 50)
         # Buscar un patrón existente con el selector fallido
         pattern = self.session.query(Pattern).filter_by(
             selector=normalized_failed_selector,
@@ -196,12 +228,18 @@ class PatternStorage:
             failed=True
         ).order_by(Pattern.usage_count.desc()).first()
 
-        if pattern and pattern.replacement_selector:
-            print(f"[INFO] Selector de reemplazo encontrado en la base de datos: '{pattern.replacement_selector}'")
-            return pattern.replacement_selector
+        #if pattern and pattern.replacement_selector:
+        #    print(f"[INFO] Selector de reemplazo encontrado en la base de datos: '{pattern.replacement_selector}'")
+        #    return pattern.replacement_selector
+
+        if selector:
+            print(f"[INFO] Selector de reemplazo encontrado en la base de datos: '{selector}'")
+            return agregar_comillas_xpath(selector)
+
 
         print(f"[WARN] No se encontró un selector de reemplazo para '{failed_selector}' en la URL '{url}'")
         return None
+
 
 
     def get_all_patterns(self, limit=10):
