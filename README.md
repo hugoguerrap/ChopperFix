@@ -35,6 +35,22 @@ pip install chopperfix
 ```
 Ensure that all dependencies such as **LangChain**, **Selenium**, **Playwright**, **SQLAlchemy**, and **spaCy** are properly configured in your environment.
 
+#### ✨ **Using LangChainManager**
+
+`LangChainManager` provides helper methods powered by OpenAI models to suggest selectors and generate descriptions.
+
+```python
+from llm_integration.langchain_manager import LangChainManager
+
+manager = LangChainManager()
+selector = manager.suggest_alternative_selector(
+    "<button id='ok'>OK</button>",
+    "//button[@id='submit']",
+    "click",
+)
+print(selector)
+```
+
 #### 🛠️ **Integration with Playwright**
 
 1. **Setting up Playwright**

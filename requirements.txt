@@ -1,7 +1,7 @@
 # LangChain y OpenAI
-adalflow
 openai
-langchain_community
+langchain
+langchain-openai
 # Selenium para automatización web
 selenium
 beautifulsoup4

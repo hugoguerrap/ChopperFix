@@ -13,8 +13,9 @@ setup(
     install_requires=[
         'sqlalchemy',
         'beautifulsoup4',
-        'adalflow',
         'openai',
+        'langchain',
+        'langchain-openai',
         'Pillow',
         'requests',
         'pydantic',
