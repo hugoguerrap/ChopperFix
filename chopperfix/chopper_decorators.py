@@ -1,11 +1,11 @@
 from functools import wraps  # Importa el decorador 'wraps' para mantener la metadata de la función original
 from learning.pattern_storage import PatternStorage  # Importa la clase 'PatternStorage' para almacenar patrones
-from llm_integration.adalflow_manager import AdalFlowManager, fix_xpath
+from llm_integration.langchain_manager import LangChainManager, fix_xpath
 from bs4 import BeautifulSoup  # Necesario para extraer el contexto del HTML
 
-# Inicializa las instancias de AdalFlowManager y PatternStorage
+# Inicializa las instancias de LangChainManager y PatternStorage
 pattern_storage = PatternStorage()
-adalFlow_Manger = AdalFlowManager()
+adalFlow_Manger = LangChainManager()
 
 from lxml import etree
 

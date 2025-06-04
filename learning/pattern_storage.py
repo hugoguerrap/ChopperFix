@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-from llm_integration.adalflow_manager import AdalFlowManager, fix_xpath
+from llm_integration.langchain_manager import LangChainManager, fix_xpath
 
 Base = declarative_base()
 
@@ -196,7 +196,7 @@ class PatternStorage:
         return None
 
     def get_replacement_selector(self, failed_selector, url,action_name):
-        adalFlow_Manger = AdalFlowManager()
+        adalFlow_Manger = LangChainManager()
         normalized_failed_selector = self.normalize_selector(failed_selector)
         normalized_url = self.normalize_url(url)
 

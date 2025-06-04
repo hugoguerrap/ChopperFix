@@ -1,5 +1,6 @@
 from playwright.sync_api import sync_playwright
 from chopperfix.chopper_decorators import chopperdoc
+from llm_integration.langchain_manager import LangChainManager
 
 
 class CustomPlaywright:
@@ -72,3 +73,12 @@ patterns = storage.get_all_patterns(limit=10)
 for pattern in patterns:
     print(f"Acción: {pattern.action}, Selector: {pattern.selector}, URL: {pattern.url}, "
           f"Timestamp: {pattern.timestamp}, Descripción: {pattern.description}, Peso: {pattern.peso}")
+
+# Uso directo de LangChainManager para sugerir un selector alternativo
+manager = LangChainManager()
+suggested = manager.suggest_alternative_selector(
+    "<input id='searchInput' />",
+    "//input[@id='sear']",
+    "type",
+)
+print(suggested)
