@@ -2,6 +2,7 @@
 openai
 langchain
 langchain-openai
+langchain_community
 # Selenium para automatización web
 selenium
 beautifulsoup4

@@ -16,6 +16,7 @@ setup(
         'openai',
         'langchain',
         'langchain-openai',
+        'langchain_community',
         'Pillow',
         'requests',
         'pydantic',
